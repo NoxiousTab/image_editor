@@ -1,6 +1,4 @@
 from PIL import Image
-
-
 def crop_image(image: Image.Image, left: int, upper: int, right: int, lower: int) -> Image.Image:
     if not isinstance(image, Image.Image):
         raise ValueError("Input must be a PIL Image object.")
