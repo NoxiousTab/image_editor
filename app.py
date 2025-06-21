@@ -1,13 +1,14 @@
-from PIL import Image
-import io
+import streamlit as st
+from editor.uploader import load_image
 
-def load_image(uploaded_file):
-    if uploaded_file is None:
-        raise ValueError("No file uploaded.")
+st.title("Basic Image Editor - Upload Module")
+
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png", "bmp"])
+
+if uploaded_file:
     try:
-        image = Image.open(uploaded_file)
-        image.verify()
-        uploaded_file.seek(0)
-        return Image.open(uploaded_file)
-    except Exception as e:
-        raise ValueError(f"Invalid image file: {e}")
+        image = load_image(uploaded_file)
+        st.image(image, caption="Uploaded Image", use_column_width=True)
+        st.success("Image uploaded and verified successfully.")
+    except ValueError as e:
+        st.error(str(e))
