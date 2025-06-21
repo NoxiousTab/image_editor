@@ -2,7 +2,10 @@ import streamlit as st
 from editor.uploader import load_image
 from editor.resize import resize_image
 from editor.crop import crop_image
-from editor.color import color_image
+from editor.rotate_flip import rotate_image, flip_image
+from streamlit_drawable_canvas import st_canvas
+from editor.doodle import overlay_doodle
+
 st.title("Basic Image Editor - Resize Module")
 uploaded_file = st.file_uploader("Upload an image", type=[
                                  "jpg", "jpeg", "png", "bmp"])
@@ -52,16 +55,47 @@ if uploaded_file:
             st.success("Image cropped successfully!")
         except ValueError as e:
             st.error(str(e))
+# -- rotate/flip section --
+    st.header("🔄 Rotate / Flip Image")
 
-# --color section--
-    st.header("Color Image: ")
-    color = st.selectbox(
-        "Select Color", ["red", "green", "blue", "black", "white"])
+    col1, col2 = st.columns(2)
 
-    if st.button("Color Image"):
-        try:
-            colored = color_image(image, color)
-            st.image(colored, caption="Colored Image", use_column_width=True)
-            st.success("Image colored successfully!")
-        except ValueError as e:
-            st.error(str(e))
+    with col1:
+        angle = st.selectbox("Rotate", options=[None, 90, 180, 270], format_func=lambda x: "None" if x is None else f"{x}°")
+        if angle:
+            rotated = rotate_image(image, angle)
+            st.image(rotated, caption=f"Rotated {angle}°", use_column_width=True)
+            st.success("Image rotated successfully.")
+
+    with col2:
+        flip_mode = st.selectbox("Flip", options=["None", "horizontal", "vertical"])
+        if flip_mode != "None":
+            flipped = flip_image(image, flip_mode)
+            st.image(flipped, caption=f"Flipped {flip_mode}", use_column_width=True)
+            st.success(f"Image flipped {flip_mode}.")
+# -- doodle section --
+    st.header("✏️ Doodle on Image")
+
+    # Set up canvas
+    st.caption("Draw freely on the image using the canvas tool below.")
+    canvas_result = st_canvas(
+        fill_color="rgba(255, 0, 0, 0.5)",  # Semi-transparent red
+        stroke_width=3,
+        stroke_color="#000000",
+        background_image=image.convert("RGBA"),
+        update_streamlit=True,
+        height=image.height,
+        width=image.width,
+        drawing_mode="freedraw",
+        key="canvas"
+    )
+
+    # If doodles exist, overlay and show
+    if canvas_result.image_data is not None:
+        from PIL import Image as PILImage
+        import numpy as np
+
+        doodle_layer = PILImage.fromarray(canvas_result.image_data.astype("uint8"))
+        combined = overlay_doodle(image, doodle_layer)
+        st.image(combined, caption="Image with Doodle", use_column_width=True)
+
