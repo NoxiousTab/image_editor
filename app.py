@@ -2,6 +2,7 @@ import streamlit as st
 from editor.uploader import load_image
 from editor.resize import resize_image
 from editor.crop import crop_image
+from editor.color import color_image
 st.title("Basic Image Editor - Resize Module")
 uploaded_file = st.file_uploader("Upload an image", type=[
                                  "jpg", "jpeg", "png", "bmp"])
@@ -49,5 +50,18 @@ if uploaded_file:
             cropped = crop_image(image, left, upper, right, lower)
             st.image(cropped, caption="Cropped Image", use_column_width=True)
             st.success("Image cropped successfully!")
+        except ValueError as e:
+            st.error(str(e))
+
+# --color section--
+    st.header("Color Image: ")
+    color = st.selectbox(
+        "Select Color", ["red", "green", "blue", "black", "white"])
+
+    if st.button("Color Image"):
+        try:
+            colored = color_image(image, color)
+            st.image(colored, caption="Colored Image", use_column_width=True)
+            st.success("Image colored successfully!")
         except ValueError as e:
             st.error(str(e))
