@@ -13,10 +13,10 @@ def test_valid_crop(sample_image):
 
 def test_invalid_coordinates(sample_image):
     with pytest.raises(ValueError):
-        crop_image(sample_image, 50, 10, 10, 50)  # left > right
+        crop_image(sample_image, 50, 10, 10, 50)
 
     with pytest.raises(ValueError):
-        crop_image(sample_image, -10, 0, 100, 100)  # negative left
+        crop_image(sample_image, -10, 0, 100, 100)
 
     with pytest.raises(ValueError):
-        crop_image(sample_image, 0, 0, sample_image.width + 10, sample_image.height)  # right > width
+        crop_image(sample_image, 0, 0, sample_image.width + 10, sample_image.height)
